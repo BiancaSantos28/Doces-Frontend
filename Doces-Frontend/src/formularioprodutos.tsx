@@ -6,7 +6,7 @@ interface Produto {
   descricao: string;
   preco: number;
   estoque: number;
-  categoria_id: number; // se não tiver categorias, pode ignorar esse campo
+  categoria_id: number; 
 }
 
 function FormularioProduto() {
