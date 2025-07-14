@@ -1,7 +1,8 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { produtosRoutes } from './routes/produtos';
-import { categoriasRoutes } from './routes/categoria';
+import  { db } from '../src/database';
+import { produtosRoutes } from '../routes/produtos';
+import categoriasRoutes, {  } from '../routes/categoria';
 
 const app = Fastify();
 

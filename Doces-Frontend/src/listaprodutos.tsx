@@ -4,64 +4,80 @@ import { Link } from 'react-router-dom';
 interface Produto {
   id: number;
   nome: string;
-  descricao: string;
   preco: number;
   estoque: number;
+  descricao: string;
+  categoria_id: number;
 }
 
-function ListaProdutos() {
+export default function ListaProdutos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [filtro, setFiltro] = useState('');
 
-  const carregarProdutos = async () => {
-    const resposta = await fetch('http://localhost:3000/produtos');
-    const dados = await resposta.json();
-    setProdutos(dados);
+  const fetchProdutos = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/produtos?nome=${filtro}`);
+      const data = await res.json();
+      setProdutos(data);
+    } catch (err) {
+      alert('Erro ao carregar produtos');
+    }
   };
 
   const deletarProduto = async (id: number) => {
-    await fetch(`http://localhost:3000/produtos/${id}`, {
-      method: 'DELETE',
-    });
-    carregarProdutos();
+    if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+
+    try {
+      await fetch(`http://localhost:8000/produtos/${id}`, {
+        method: 'DELETE'
+      });
+      fetchProdutos(); // atualiza lista
+    } catch (err) {
+      alert('Erro ao deletar produto');
+    }
   };
 
   useEffect(() => {
-    carregarProdutos();
-  }, []);
-
-  const produtosFiltrados = produtos.filter((p) =>
-    p.nome.toLowerCase().includes(filtro.toLowerCase())
-  );
+    fetchProdutos();
+  }, [filtro]);
 
   return (
-    <div>
-      <h1>Lista de Doces</h1>
-      <Link to="/produtos/novo">Cadastrar novo doce</Link>
+    <div style={{ padding: 20 }}>
+      <h2>Lista de Produtos</h2>
 
-      <br /><br />
       <input
         type="text"
-        placeholder="Buscar por nome..."
+        placeholder="Filtrar por nome"
         value={filtro}
-        onChange={(e) => setFiltro(e.target.value)}
+        onChange={e => setFiltro(e.target.value)}
+        style={{ marginBottom: 10, padding: 5 }}
       />
 
-      <ul>
-        {produtosFiltrados.map((produto) => (
-          <li key={produto.id}>
-            <strong>{produto.nome}</strong> - R${produto.preco.toFixed(2)}
-            <br />
-            <small>{produto.descricao}</small>
-            <br />
-            <Link to={`/produtos/editar/${produto.id}`}>Editar</Link>
-            <button onClick={() => deletarProduto(produto.id)}>Excluir</button>
-            <hr />
-          </li>
-        ))}
-      </ul>
+      <table border={1} cellPadding={8} cellSpacing={0}>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Preço</th>
+            <th>Estoque</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {produtos.map(produto => (
+            <tr key={produto.id}>
+              <td>{produto.nome}</td>
+              <td>R$ {produto.preco.toFixed(2)}</td>
+              <td>{produto.estoque}</td>
+              <td>
+                <Link to={`/produto/editar/${produto.id}`} style={{ marginRight: 8 }}>
+                  Editar
+                </Link>
+                <button onClick={() => deletarProduto(produto.id)}>Excluir</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
-
-export default ListaProdutos;

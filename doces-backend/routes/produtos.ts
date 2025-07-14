@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { db } from '../database';
+import { db } from '../src/database';
 
 export async function produtosRoutes(fastify: FastifyInstance) {
   // Listar todos
